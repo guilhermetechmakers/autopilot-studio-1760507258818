@@ -222,3 +222,52 @@ export interface Intake {
   created_at: string;
   updated_at: string;
 }
+
+// Authentication Types
+export interface LoginCredentials {
+  email: string;
+  password: string;
+  remember_me?: boolean;
+}
+
+export interface SignupCredentials {
+  email: string;
+  password: string;
+  full_name: string;
+  company?: string;
+  role: "admin" | "manager" | "developer" | "client";
+}
+
+export interface AuthResponse {
+  user: User;
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+}
+
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetConfirm {
+  token: string;
+  password: string;
+  confirm_password: string;
+}
+
+export interface EmailVerificationRequest {
+  email: string;
+}
+
+export interface OAuthProvider {
+  name: "google" | "github";
+  display_name: string;
+  icon: string;
+  url: string;
+}
+
+export interface AuthError {
+  message: string;
+  code: string;
+  field?: string;
+}

@@ -2,11 +2,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Pages
 import LandingPage from "@/pages/LandingPage";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
+import PasswordResetPage from "@/pages/PasswordResetPage";
+import EmailVerificationPage from "@/pages/EmailVerificationPage";
 import DashboardPage from "@/pages/DashboardPage";
 import ProjectPage from "@/pages/ProjectPage";
 import IntakePage from "@/pages/IntakePage";
@@ -33,30 +37,83 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="ui-theme">
-        <BrowserRouter>
-          <div className="min-h-screen bg-background">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/intake" element={<IntakePage />} />
-              
-              {/* Protected Routes */}
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/project/:id" element={<ProjectPage />} />
-              <Route path="/proposals" element={<ProposalsPage />} />
-              <Route path="/client-portal/:id" element={<ClientPortalPage />} />
-              <Route path="/ai-copilot" element={<AICopilotPage />} />
-              <Route path="/billing" element={<BillingPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              
-              {/* 404 */}
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </div>
-          <Toaster />
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <div className="min-h-screen bg-background">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/forgot-password" element={<PasswordResetPage />} />
+                <Route path="/verify-email" element={<EmailVerificationPage />} />
+                <Route path="/intake" element={<IntakePage />} />
+                
+                {/* Protected Routes */}
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <DashboardPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/project/:id" 
+                  element={
+                    <ProtectedRoute>
+                      <ProjectPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/proposals" 
+                  element={
+                    <ProtectedRoute>
+                      <ProposalsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/client-portal/:id" 
+                  element={
+                    <ProtectedRoute>
+                      <ClientPortalPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/ai-copilot" 
+                  element={
+                    <ProtectedRoute>
+                      <AICopilotPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/billing" 
+                  element={
+                    <ProtectedRoute>
+                      <BillingPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings" 
+                  element={
+                    <ProtectedRoute>
+                      <SettingsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* 404 */}
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </div>
+            <Toaster />
+          </BrowserRouter>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

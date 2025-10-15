@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,29 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Zap, Mail, Lock, User, Building, Github } from "lucide-react";
+import { Zap, Mail, Lock, User, Building, Github, Loader2 } from "lucide-react";
+import { useSignupForm, useOAuth } from "@/hooks/useAuth";
 
 export default function SignupPage() {
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    company: "",
-    role: "",
-    teamSize: "",
-    agreeToTerms: false
-  });
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Handle signup logic here
-    console.log("Signup attempt:", formData);
-  };
-
-  const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+  const { form, onSubmit, isLoading } = useSignupForm();
+  const { handleOAuthLogin } = useOAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
@@ -52,21 +34,24 @@ export default function SignupPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="full_name">Full Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="fullName"
+                    id="full_name"
                     type="text"
                     placeholder="Enter your full name"
-                    value={formData.fullName}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("fullName", e.target.value)}
                     className="pl-10"
-                    required
+                    {...form.register("full_name")}
                   />
                 </div>
+                {form.formState.errors.full_name && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.full_name.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -77,12 +62,15 @@ export default function SignupPage() {
                     id="email"
                     type="email"
                     placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("email", e.target.value)}
                     className="pl-10"
-                    required
+                    {...form.register("email")}
                   />
                 </div>
+                {form.formState.errors.email && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.email.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -93,28 +81,34 @@ export default function SignupPage() {
                     id="password"
                     type="password"
                     placeholder="Create a password"
-                    value={formData.password}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("password", e.target.value)}
                     className="pl-10"
-                    required
+                    {...form.register("password")}
                   />
                 </div>
+                {form.formState.errors.password && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.password.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirm_password">Confirm Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="confirmPassword"
+                    id="confirm_password"
                     type="password"
                     placeholder="Confirm your password"
-                    value={formData.confirmPassword}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("confirmPassword", e.target.value)}
                     className="pl-10"
-                    required
+                    {...form.register("confirm_password")}
                   />
                 </div>
+                {form.formState.errors.confirm_password && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.confirm_password.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -125,50 +119,36 @@ export default function SignupPage() {
                     id="company"
                     type="text"
                     placeholder="Enter your company name"
-                    value={formData.company}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("company", e.target.value)}
                     className="pl-10"
+                    {...form.register("company")}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
-                <Select value={formData.role} onValueChange={(value: string) => handleInputChange("role", value)}>
+                <Select {...form.register("role")}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="agency-owner">Agency Owner</SelectItem>
-                    <SelectItem value="project-manager">Project Manager</SelectItem>
+                    <SelectItem value="admin">Agency Owner</SelectItem>
+                    <SelectItem value="manager">Project Manager</SelectItem>
                     <SelectItem value="developer">Developer</SelectItem>
-                    <SelectItem value="designer">Designer</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="client">Client</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="teamSize">Team Size</Label>
-                <Select value={formData.teamSize} onValueChange={(value: string) => handleInputChange("teamSize", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select team size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">Just me</SelectItem>
-                    <SelectItem value="2-5">2-5 people</SelectItem>
-                    <SelectItem value="6-20">6-20 people</SelectItem>
-                    <SelectItem value="21-50">21-50 people</SelectItem>
-                    <SelectItem value="50+">50+ people</SelectItem>
-                  </SelectContent>
-                </Select>
+                {form.formState.errors.role && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.role.message}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="terms"
-                  checked={formData.agreeToTerms}
-                  onCheckedChange={(checked: boolean) => handleInputChange("agreeToTerms", checked)}
+                  required
                 />
                 <Label htmlFor="terms" className="text-sm">
                   I agree to the{" "}
@@ -185,9 +165,16 @@ export default function SignupPage() {
               <Button 
                 type="submit" 
                 className="w-full btn-primary"
-                disabled={!formData.agreeToTerms}
+                disabled={isLoading}
               >
-                Create Account
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  "Create Account"
+                )}
               </Button>
             </form>
 
@@ -204,11 +191,21 @@ export default function SignupPage() {
               </div>
 
               <div className="mt-6 grid grid-cols-2 gap-3">
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full hover:scale-105 transition-transform"
+                  onClick={() => handleOAuthLogin("github")}
+                  disabled={isLoading}
+                >
                   <Github className="w-4 h-4 mr-2" />
                   GitHub
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full hover:scale-105 transition-transform"
+                  onClick={() => handleOAuthLogin("google")}
+                  disabled={isLoading}
+                >
                   <Mail className="w-4 h-4 mr-2" />
                   Google
                 </Button>

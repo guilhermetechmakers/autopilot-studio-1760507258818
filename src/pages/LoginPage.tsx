@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,18 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { Zap, Mail, Lock, Github } from "lucide-react";
+import { Zap, Mail, Lock, Github, Loader2 } from "lucide-react";
+import { useLoginForm, useOAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const { form, onSubmit, isLoading } = useLoginForm();
+  const { handleOAuthLogin, handleOAuthCallback } = useOAuth();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Handle login logic here
-    console.log("Login attempt:", { email, password, rememberMe });
-  };
+  // Handle OAuth callback on page load
+  useEffect(() => {
+    handleOAuthCallback();
+  }, [handleOAuthCallback]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
@@ -40,7 +39,7 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -49,12 +48,15 @@ export default function LoginPage() {
                     id="email"
                     type="email"
                     placeholder="Enter your email"
-                    value={email}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                     className="pl-10"
-                    required
+                    {...form.register("email")}
                   />
                 </div>
+                {form.formState.errors.email && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.email.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -65,20 +67,22 @@ export default function LoginPage() {
                     id="password"
                     type="password"
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                     className="pl-10"
-                    required
+                    {...form.register("password")}
                   />
                 </div>
+                {form.formState.errors.password && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.password.message}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={(checked: boolean) => setRememberMe(checked)}
+                    {...form.register("remember_me")}
                   />
                   <Label htmlFor="remember" className="text-sm">
                     Remember me
@@ -92,8 +96,15 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full btn-primary">
-                Sign In
+              <Button type="submit" className="w-full btn-primary" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
               </Button>
             </form>
 
@@ -110,11 +121,21 @@ export default function LoginPage() {
               </div>
 
               <div className="mt-6 grid grid-cols-2 gap-3">
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full hover:scale-105 transition-transform"
+                  onClick={() => handleOAuthLogin("github")}
+                  disabled={isLoading}
+                >
                   <Github className="w-4 h-4 mr-2" />
                   GitHub
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full hover:scale-105 transition-transform"
+                  onClick={() => handleOAuthLogin("google")}
+                  disabled={isLoading}
+                >
                   <Mail className="w-4 h-4 mr-2" />
                   Google
                 </Button>
