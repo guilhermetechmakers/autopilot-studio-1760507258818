@@ -19,6 +19,7 @@ import ProposalsPage from "@/pages/ProposalsPage";
 import ClientPortalPage from "@/pages/ClientPortalPage";
 import AICopilotPage from "@/pages/AICopilotPage";
 import BillingPage from "@/pages/BillingPage";
+import TimeTrackingPage from "@/pages/TimeTrackingPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
@@ -97,6 +98,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <BillingPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/time-tracking" 
+                  element={
+                    <ProtectedRoute>
+                      <TimeTrackingPage />
                     </ProtectedRoute>
                   } 
                 />
