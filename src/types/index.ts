@@ -223,6 +223,81 @@ export interface Intake {
   updated_at: string;
 }
 
+export interface CreateIntakeInput {
+  client_name: string;
+  client_email: string;
+  company?: string;
+  project_type: string;
+  budget_range: string;
+  timeline: string;
+  requirements: string;
+  additional_info?: string;
+  files?: File[];
+}
+
+export interface IntakeQuestion {
+  id: string;
+  type: "text" | "select" | "multiselect" | "textarea" | "file" | "number" | "date";
+  question: string;
+  options?: string[];
+  required: boolean;
+  placeholder?: string;
+  validation?: {
+    min?: number;
+    max?: number;
+    pattern?: string;
+  };
+  follow_up_questions?: IntakeQuestion[];
+}
+
+export interface IntakeResponse {
+  question_id: string;
+  answer: string | string[] | number | Date | File[];
+  timestamp: string;
+}
+
+export interface IntakeSession {
+  id: string;
+  session_id: string;
+  responses: IntakeResponse[];
+  current_question_index: number;
+  is_completed: boolean;
+  qualification_score?: number;
+  ai_suggestions?: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IntakeFormData {
+  // Basic Information
+  client_name: string;
+  client_email: string;
+  company?: string;
+  phone?: string;
+  
+  // Project Details
+  project_type: string;
+  project_description: string;
+  goals: string;
+  target_audience?: string;
+  
+  // Technical Requirements
+  tech_stack?: string[];
+  integrations?: string[];
+  platforms: string[];
+  
+  // Timeline & Budget
+  budget_range: string;
+  timeline: string;
+  start_date?: string;
+  
+  // Additional Information
+  additional_requirements?: string;
+  files?: File[];
+  privacy_consent: boolean;
+  marketing_consent: boolean;
+}
+
 // Authentication Types
 export interface LoginCredentials {
   email: string;
