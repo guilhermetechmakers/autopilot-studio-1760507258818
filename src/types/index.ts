@@ -330,6 +330,18 @@ export interface PasswordResetConfirm {
   confirm_password: string;
 }
 
+export interface OTPVerification {
+  email: string;
+  otp: string;
+}
+
+export interface PasswordResetWithOTP {
+  email: string;
+  otp: string;
+  password: string;
+  confirm_password: string;
+}
+
 export interface EmailVerificationRequest {
   email: string;
 }

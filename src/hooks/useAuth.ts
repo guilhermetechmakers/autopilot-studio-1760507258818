@@ -11,6 +11,8 @@ import type {
   SignupCredentials,
   PasswordResetRequest,
   PasswordResetConfirm,
+  OTPVerification,
+  PasswordResetWithOTP,
   EmailVerificationRequest,
 } from "@/types";
 
@@ -48,6 +50,21 @@ const passwordResetConfirmSchema = z.object({
 
 const emailVerificationSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
+});
+
+const otpVerificationSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  otp: z.string().length(6, "OTP must be 6 digits"),
+});
+
+const passwordResetWithOTPSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  otp: z.string().length(6, "OTP must be 6 digits"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirm_password: z.string(),
+}).refine((data) => data.password === data.confirm_password, {
+  message: "Passwords don't match",
+  path: ["confirm_password"],
 });
 
 // Hook for login form
@@ -136,7 +153,7 @@ export const useSignupForm = () => {
   });
 
   const onSubmit = form.handleSubmit((data) => {
-    const { confirm_password, ...signupData } = data;
+    const { confirm_password: _, ...signupData } = data;
     signupMutation.mutate(signupData);
   });
 
@@ -343,5 +360,74 @@ export const useLogout = () => {
   return {
     logout,
     isLoading: logoutMutation.isPending,
+  };
+};
+
+// Hook for OTP verification
+export const useOTPVerificationForm = () => {
+  const form = useForm<OTPVerification>({
+    resolver: zodResolver(otpVerificationSchema),
+    defaultValues: {
+      email: "",
+      otp: "",
+    },
+  });
+
+  const verificationMutation = useMutation({
+    mutationFn: authApi.verifyOTP,
+    onSuccess: () => {
+      toast.success("OTP verified successfully!");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "OTP verification failed");
+    },
+  });
+
+  const onSubmit = form.handleSubmit((data) => {
+    verificationMutation.mutate(data);
+  });
+
+  return {
+    form,
+    onSubmit,
+    isLoading: verificationMutation.isPending,
+    error: verificationMutation.error,
+  };
+};
+
+// Hook for password reset with OTP
+export const usePasswordResetWithOTPForm = () => {
+  const navigate = useNavigate();
+
+  const form = useForm<PasswordResetWithOTP>({
+    resolver: zodResolver(passwordResetWithOTPSchema),
+    defaultValues: {
+      email: "",
+      otp: "",
+      password: "",
+      confirm_password: "",
+    },
+  });
+
+  const resetMutation = useMutation({
+    mutationFn: authApi.resetPasswordWithOTP,
+    onSuccess: () => {
+      toast.success("Password reset successfully!");
+      navigate("/login");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Password reset failed");
+    },
+  });
+
+  const onSubmit = form.handleSubmit((data) => {
+    resetMutation.mutate(data);
+  });
+
+  return {
+    form,
+    onSubmit,
+    isLoading: resetMutation.isPending,
+    error: resetMutation.error,
   };
 };

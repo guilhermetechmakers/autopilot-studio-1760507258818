@@ -6,6 +6,8 @@ import type {
   AuthResponse,
   PasswordResetRequest,
   PasswordResetConfirm,
+  OTPVerification,
+  PasswordResetWithOTP,
   EmailVerificationRequest,
   User,
 } from "@/types";
@@ -55,6 +57,16 @@ export const authApi = {
   // Confirm password reset
   confirmPasswordReset: async (data: PasswordResetConfirm): Promise<ApiResponse<void>> => {
     return api.post<ApiResponse<void>>("/auth/password-reset/confirm", data);
+  },
+
+  // Verify OTP
+  verifyOTP: async (data: OTPVerification): Promise<ApiResponse<void>> => {
+    return api.post<ApiResponse<void>>("/auth/verify-otp", data);
+  },
+
+  // Reset password with OTP
+  resetPasswordWithOTP: async (data: PasswordResetWithOTP): Promise<ApiResponse<void>> => {
+    return api.post<ApiResponse<void>>("/auth/password-reset/otp", data);
   },
 
   // Request email verification
