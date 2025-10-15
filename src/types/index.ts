@@ -90,8 +90,77 @@ export interface Proposal {
   value: number;
   sent_at?: string;
   signed_at?: string;
+  version: number;
+  template_id?: string;
+  ai_generated: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface CreateProposalInput {
+  client_id: string;
+  project_id?: string;
+  title: string;
+  content: string;
+  value: number;
+  template_id?: string;
+  ai_generated?: boolean;
+}
+
+export interface UpdateProposalInput {
+  id: string;
+  title?: string;
+  content?: string;
+  status?: string;
+  value?: number;
+  template_id?: string;
+}
+
+export interface ProposalVersion {
+  id: string;
+  proposal_id: string;
+  version: number;
+  title: string;
+  content: string;
+  changes: string;
+  created_by: string;
+  created_at: string;
+}
+
+// SoW Template Types
+export interface SoWTemplate {
+  id: string;
+  name: string;
+  description: string;
+  content: string;
+  variables: string[];
+  category: "web_development" | "mobile_app" | "ai_ml" | "consulting" | "custom";
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateSoWTemplateInput {
+  name: string;
+  description: string;
+  content: string;
+  variables: string[];
+  category: string;
+}
+
+// E-signature Types
+export interface ESignature {
+  id: string;
+  proposal_id: string;
+  signer_email: string;
+  signer_name: string;
+  status: "pending" | "signed" | "declined" | "expired";
+  sent_at: string;
+  signed_at?: string;
+  expires_at: string;
+  signature_data?: string;
+  ip_address?: string;
+  user_agent?: string;
 }
 
 // Time Tracking Types
