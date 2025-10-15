@@ -10,7 +10,8 @@ import {
   Clock,
   Loader2,
   MessageSquare,
-  BarChart3
+  BarChart3,
+  Calendar
 } from "lucide-react";
 import { IntakeConversation } from "@/components/intake/IntakeConversation";
 import { IntakeProgress } from "@/components/intake/IntakeProgress";
@@ -180,9 +181,26 @@ export default function IntakePage() {
               AI-Assisted Intake
             </h1>
           </div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-6">
             Let our AI assistant guide you through a personalized intake process to understand your project needs
           </p>
+          <div className="flex justify-center gap-4">
+            <Button 
+              onClick={() => window.location.href = "/intake/book"}
+              size="lg"
+              className="gap-2 hover:scale-105 transition-transform duration-200"
+            >
+              <Calendar className="w-4 h-4" />
+              Book AI Intake Session
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => window.location.href = "/"}
+              size="lg"
+            >
+              Back to Home
+            </Button>
+          </div>
         </div>
 
         {/* Progress */}

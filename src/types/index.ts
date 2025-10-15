@@ -346,3 +346,65 @@ export interface AuthError {
   code: string;
   field?: string;
 }
+
+// Booking Types
+export interface BookingSlot {
+  id: string;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
+  timezone: string;
+}
+
+export interface BookingRequest {
+  client_name: string;
+  client_email: string;
+  company?: string;
+  phone?: string;
+  slot_id: string;
+  timezone: string;
+  project_type?: string;
+  project_description?: string;
+  budget_range?: string;
+  timeline?: string;
+  additional_notes?: string;
+  privacy_consent: boolean;
+  marketing_consent?: boolean;
+}
+
+export interface Booking {
+  id: string;
+  client_name: string;
+  client_email: string;
+  company?: string;
+  phone?: string;
+  slot_id: string;
+  slot: BookingSlot;
+  timezone: string;
+  project_type?: string;
+  project_description?: string;
+  budget_range?: string;
+  timeline?: string;
+  additional_notes?: string;
+  status: "pending" | "confirmed" | "cancelled" | "completed";
+  meeting_link?: string;
+  calendar_event_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BookingFormData {
+  client_name: string;
+  client_email: string;
+  company?: string;
+  phone?: string;
+  slot_id: string;
+  timezone: string;
+  project_type?: string;
+  project_description?: string;
+  budget_range?: string;
+  timeline?: string;
+  additional_notes?: string;
+  privacy_consent: boolean;
+  marketing_consent?: boolean;
+}

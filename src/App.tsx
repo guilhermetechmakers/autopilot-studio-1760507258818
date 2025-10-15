@@ -14,6 +14,7 @@ import EmailVerificationPage from "@/pages/EmailVerificationPage";
 import DashboardPage from "@/pages/DashboardPage";
 import ProjectPage from "@/pages/ProjectPage";
 import IntakePage from "@/pages/IntakePage";
+import BookingPage from "@/pages/BookingPage";
 import ProposalsPage from "@/pages/ProposalsPage";
 import ClientPortalPage from "@/pages/ClientPortalPage";
 import AICopilotPage from "@/pages/AICopilotPage";
@@ -48,6 +49,7 @@ function App() {
                 <Route path="/forgot-password" element={<PasswordResetPage />} />
                 <Route path="/verify-email" element={<EmailVerificationPage />} />
                 <Route path="/intake" element={<IntakePage />} />
+                <Route path="/intake/book" element={<BookingPage />} />
                 
                 {/* Protected Routes */}
                 <Route 

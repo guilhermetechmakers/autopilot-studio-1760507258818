@@ -8,6 +8,8 @@ import { intakeApi } from "@/api/intake";
 import type {
   IntakeFormData,
   IntakeResponse,
+  BookingRequest,
+  BookingFormData,
 } from "@/types";
 
 // Validation schema for intake form
@@ -264,5 +266,187 @@ export const useFileUpload = (sessionId: string) => {
     uploadFiles: uploadMutation.mutate,
     isLoading: uploadMutation.isPending,
     error: uploadMutation.error,
+  };
+};
+
+// Booking hooks
+// Hook for getting booking slots
+export const useBookingSlots = (params?: {
+  start_date?: string;
+  end_date?: string;
+  timezone?: string;
+}) => {
+  return useQuery({
+    queryKey: ["booking-slots", params],
+    queryFn: async () => {
+      const response = await intakeApi.getBookingSlots(params);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      return response.data || [];
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+// Hook for creating booking
+export const useCreateBooking = () => {
+  const queryClient = useQueryClient();
+
+  const createBookingMutation = useMutation({
+    mutationFn: (bookingData: BookingRequest) => intakeApi.createBooking(bookingData),
+    onSuccess: (response) => {
+      if (response.data) {
+        toast.success("Booking created successfully!");
+        queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create booking");
+    },
+  });
+
+  return {
+    createBooking: createBookingMutation.mutate,
+    isLoading: createBookingMutation.isPending,
+    error: createBookingMutation.error,
+  };
+};
+
+// Hook for getting booking by ID
+export const useBooking = (id: string) => {
+  return useQuery({
+    queryKey: ["booking", id],
+    queryFn: async () => {
+      const response = await intakeApi.getBooking(id);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      return response.data;
+    },
+    enabled: !!id,
+  });
+};
+
+// Hook for updating booking status
+export const useUpdateBookingStatus = () => {
+  const queryClient = useQueryClient();
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      intakeApi.updateBookingStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      toast.success("Booking status updated!");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to update booking status");
+    },
+  });
+
+  return {
+    updateStatus: updateStatusMutation.mutate,
+    isLoading: updateStatusMutation.isPending,
+    error: updateStatusMutation.error,
+  };
+};
+
+// Hook for getting bookings (for admin/dashboard)
+export const useBookings = (params?: {
+  status?: string;
+  page?: number;
+  limit?: number;
+}) => {
+  return useQuery({
+    queryKey: ["bookings", params],
+    queryFn: async () => {
+      const response = await intakeApi.getBookings(params);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  });
+};
+
+// Hook for booking form
+export const useBookingForm = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const form = useForm<BookingFormData>({
+    resolver: zodResolver(z.object({
+      client_name: z.string().min(2, "Name must be at least 2 characters"),
+      client_email: z.string().email("Please enter a valid email address"),
+      company: z.string().optional(),
+      phone: z.string().optional(),
+      slot_id: z.string().min(1, "Please select a time slot"),
+      timezone: z.string().min(1, "Please select your timezone"),
+      project_type: z.string().optional(),
+      project_description: z.string().optional(),
+      budget_range: z.string().optional(),
+      timeline: z.string().optional(),
+      additional_notes: z.string().optional(),
+      privacy_consent: z.boolean().refine((val) => val === true, "You must agree to the privacy policy"),
+      marketing_consent: z.boolean().optional(),
+    })),
+    defaultValues: {
+      client_name: "",
+      client_email: "",
+      company: "",
+      phone: "",
+      slot_id: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      project_type: "",
+      project_description: "",
+      budget_range: "",
+      timeline: "",
+      additional_notes: "",
+      privacy_consent: false,
+      marketing_consent: false,
+    },
+  });
+
+  const createBookingMutation = useMutation({
+    mutationFn: (formData: BookingFormData) => {
+      const bookingRequest: BookingRequest = {
+        client_name: formData.client_name,
+        client_email: formData.client_email,
+        company: formData.company,
+        phone: formData.phone,
+        slot_id: formData.slot_id,
+        timezone: formData.timezone,
+        project_type: formData.project_type,
+        project_description: formData.project_description,
+        budget_range: formData.budget_range,
+        timeline: formData.timeline,
+        additional_notes: formData.additional_notes,
+        privacy_consent: formData.privacy_consent,
+        marketing_consent: formData.marketing_consent,
+      };
+      return intakeApi.createBooking(bookingRequest);
+    },
+    onSuccess: (response) => {
+      if (response.data) {
+        toast.success("Booking created successfully!");
+        queryClient.invalidateQueries({ queryKey: ["bookings"] });
+        navigate("/dashboard");
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create booking");
+    },
+  });
+
+  const onSubmit = form.handleSubmit((data) => {
+    createBookingMutation.mutate(data);
+  });
+
+  return {
+    form,
+    onSubmit,
+    isLoading: createBookingMutation.isPending,
+    error: createBookingMutation.error,
   };
 };

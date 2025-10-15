@@ -6,6 +6,9 @@ import type {
   IntakeQuestion,
   IntakeResponse,
   IntakeFormData,
+  BookingSlot,
+  Booking,
+  BookingRequest,
 } from "@/types";
 
 // Intake API endpoints
@@ -125,5 +128,63 @@ export const intakeApi = {
       intakes_by_status: Record<string, number>;
       intakes_by_month: Array<{ month: string; count: number }>;
     }>>("/intake/analytics");
+  },
+
+  // Booking API endpoints
+  // Get available booking slots
+  getBookingSlots: async (params?: {
+    start_date?: string;
+    end_date?: string;
+    timezone?: string;
+  }): Promise<ApiResponse<BookingSlot[]>> => {
+    const queryParams = new URLSearchParams();
+    if (params?.start_date) queryParams.append("start_date", params.start_date);
+    if (params?.end_date) queryParams.append("end_date", params.end_date);
+    if (params?.timezone) queryParams.append("timezone", params.timezone);
+    
+    const queryString = queryParams.toString();
+    const endpoint = queryString ? `/intake/booking/slots?${queryString}` : "/intake/booking/slots";
+    
+    return api.get<ApiResponse<BookingSlot[]>>(endpoint);
+  },
+
+  // Create a new booking
+  createBooking: async (bookingData: BookingRequest): Promise<ApiResponse<Booking>> => {
+    return api.post<ApiResponse<Booking>>("/intake/booking", bookingData);
+  },
+
+  // Get booking by ID
+  getBooking: async (id: string): Promise<ApiResponse<Booking>> => {
+    return api.get<ApiResponse<Booking>>(`/intake/booking/${id}`);
+  },
+
+  // Update booking status
+  updateBookingStatus: async (
+    id: string,
+    status: string
+  ): Promise<ApiResponse<Booking>> => {
+    return api.put<ApiResponse<Booking>>(`/intake/booking/${id}/status`, { status });
+  },
+
+  // Cancel booking
+  cancelBooking: async (id: string): Promise<void> => {
+    await api.delete(`/intake/booking/${id}`);
+  },
+
+  // Get bookings (for admin/dashboard)
+  getBookings: async (params?: {
+    status?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<ApiResponse<{ bookings: Booking[]; total: number; page: number; limit: number }>> => {
+    const queryParams = new URLSearchParams();
+    if (params?.status) queryParams.append("status", params.status);
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    
+    const queryString = queryParams.toString();
+    const endpoint = queryString ? `/intake/booking?${queryString}` : "/intake/booking";
+    
+    return api.get<ApiResponse<{ bookings: Booking[]; total: number; page: number; limit: number }>>(endpoint);
   },
 };
